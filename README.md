@@ -1,6 +1,6 @@
 # Renewal Desk
 
-Renewal Desk is a Rails project for tracking contract notice deadlines and recording renewal decisions. The first milestone provides a runnable Rails and PostgreSQL foundation.
+Renewal Desk tracks contract notice deadlines and renewal decisions. The domain rules and PostgreSQL write operations are available through the Rails console.
 
 ## Quick start
 
@@ -18,13 +18,41 @@ Run the same application checks as GitHub Actions.
 docker compose run --rm -T -e CI=true app bin/ci
 ```
 
-The checks prepare a separate test database, verify Rails autoloading, run the Minitest suite, and run RuboCop. The smoke tests exercise the Rails health route and query PostgreSQL to verify the database name and server version.
+The checks run the domain suite with line and branch coverage, prepare a separate PostgreSQL test database, verify Rails autoloading, run the Rails suite, and run RuboCop.
 
 ```sh
 docker compose down
 ```
 
 The PostgreSQL volume persists when the stack is stopped. After changing application files, repeat the quick-start command to rebuild the image. Set `APP_PORT` before starting Compose to use a different host port.
+
+## Try a contract in the console
+
+Run `docker compose exec app bin/rails console` while the stack is running.
+
+```ruby
+owner = User.find_or_create_by!(email_address: "owner@example.test") do |user|
+  user.password = SecureRandom.hex(16)
+end
+record = Renewals::ContractWriter.create(
+  owner: owner, title: "Office Internet", counterparty: "Example Telecom",
+  ends_on: Date.new(2026, 12, 31), notice_days: 30
+)
+record.notice_due_on.iso8601 # => "2026-12-01"
+
+record = Renewals::ContractWriter.record_decision(
+  owner: owner, id: record.id, lock_version: record.lock_version, decision: "renew"
+)
+record.events.pluck(:event_type) # => ["contract_created", "decision_recorded"]
+```
+
+`Renewals::Contract` owns the transition rules. `Renewals::NoticeSchedule` calculates dates in the Gregorian calendar. `Renewals::ContractWriter` locks the contract row before comparing the submitted version and writes each change and its history event in one transaction.
+
+To run only the domain suite without Rails or PostgreSQL:
+
+```sh
+docker compose run --build --rm --no-deps -T app bin/test-domain
+```
 
 ## Platform
 

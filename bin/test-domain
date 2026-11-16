@@ -1,0 +1,22 @@
+#!/usr/bin/env ruby
+require "bundler/setup"
+require "coverage"
+require "minitest/autorun"
+require "zeitwerk"
+
+domain = File.expand_path("../app/domain", __dir__)
+loader = Zeitwerk::Loader.new
+loader.push_dir(domain)
+loader.setup
+
+Coverage.start(lines: true, branches: true)
+loader.eager_load
+
+Dir[File.expand_path("../test/domain/**/*_test.rb", __dir__)].sort.each { |file| require file }
+
+Minitest.after_run do
+  files = Coverage.result.select { |path, _| path.start_with?("#{domain}/") }.values
+  lines = files.flat_map { |file| file.fetch(:lines).compact }
+  branches = files.flat_map { |file| file.fetch(:branches).values.flat_map(&:values) }
+  puts "Domain coverage: #{lines.count(&:positive?)}/#{lines.size} lines, #{branches.count(&:positive?)}/#{branches.size} branches"
+end
