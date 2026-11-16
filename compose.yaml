@@ -1,0 +1,40 @@
+name: renewal-desk
+
+services:
+  app:
+    build: .
+    init: true
+    command: ["sh", "-c", "bin/rails db:prepare && exec bin/rails server --binding 0.0.0.0"]
+    environment:
+      DB_HOST: db
+      DB_USER: renewal_desk
+      DB_PASSWORD: renewal_desk_local
+    ports:
+      - "127.0.0.1:${APP_PORT:-3000}:3000"
+    depends_on:
+      db:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "ruby", "-rnet/http", "-e", "abort unless Net::HTTP.get_response(URI('http://127.0.0.1:3000/up')).is_a?(Net::HTTPSuccess)"]
+      interval: 5s
+      timeout: 3s
+      start_period: 15s
+      retries: 12
+
+  db:
+    image: postgres:17.12-bookworm@sha256:40865bc877a289da75963d97d72b59633f639fc5af7a4e856bfa3714cae5b536
+    environment:
+      POSTGRES_USER: renewal_desk
+      POSTGRES_PASSWORD: renewal_desk_local
+      POSTGRES_DB: postgres
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD", "pg_isready", "-h", "127.0.0.1", "-U", "renewal_desk", "-d", "postgres"]
+      interval: 3s
+      timeout: 3s
+      start_period: 10s
+      retries: 20
+
+volumes:
+  postgres_data:

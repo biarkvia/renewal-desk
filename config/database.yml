@@ -1,0 +1,21 @@
+default: &default
+  adapter: postgresql
+  encoding: unicode
+  max_connections: <%= Integer(ENV.fetch("RAILS_MAX_THREADS", "5")) %>
+  host: <%= ENV.fetch("DB_HOST", "127.0.0.1").to_json %>
+  port: <%= Integer(ENV.fetch("DB_PORT", "5432")) %>
+  username: <%= ENV.fetch("DB_USER", "renewal_desk").to_json %>
+  password: <%= ENV["DB_PASSWORD"].to_json %>
+
+development:
+  <<: *default
+  database: renewal_desk_development
+
+test:
+  <<: *default
+  # Keep Rails test tasks isolated from an inherited DATABASE_URL.
+  url: postgresql:///renewal_desk_test
+
+production:
+  <<: *default
+  database: renewal_desk_production

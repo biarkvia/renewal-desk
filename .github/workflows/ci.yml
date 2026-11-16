@@ -1,0 +1,37 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  rails:
+    name: Rails and PostgreSQL
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    env:
+      COMPOSE_PROJECT_NAME: renewal-desk-ci-${{ github.run_id }}-${{ github.run_attempt }}
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+
+      - name: Build and start the application
+        run: docker compose up --build --wait --wait-timeout 120
+
+      - name: Check the published health endpoint
+        run: curl --fail --silent --show-error http://127.0.0.1:3000/up --output /dev/null
+
+      - name: Run Rails tests and static checks
+        run: docker compose run --rm -T -e CI=true app bin/ci
+
+      - name: Print service logs on failure
+        if: failure()
+        run: docker compose logs --no-color
+
+      - name: Remove disposable CI services and database
+        if: always()
+        run: docker compose down --volumes
