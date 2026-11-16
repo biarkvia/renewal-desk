@@ -1,0 +1,12 @@
+<% content_for :title, "Contract unavailable · Renewal Desk" %>
+
+<section class="panel form-panel">
+  <h1><%= @problem.status == 409 ? "Contract changed" : "Contract unavailable" %></h1>
+  <p class="muted"><%= @problem.detail %></p>
+  <div class="form-actions">
+    <% if @contract %>
+      <%= link_to "Reload contract", contract_path(@contract), class: "button button--primary" %>
+    <% end %>
+    <%= link_to "Back to contracts", contracts_path, class: "button button--quiet" %>
+  </div>
+</section>

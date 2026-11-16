@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
   <head>
     <title><%= content_for(:title) || "Renewal Desk" %></title>
     <meta name="viewport" content="width=device-width,initial-scale=1">
@@ -8,15 +8,36 @@
 
     <%= yield :head %>
 
-    <link rel="icon" href="/icon.png" type="image/png">
-    <link rel="icon" href="/icon.svg" type="image/svg+xml">
-    <link rel="apple-touch-icon" href="/icon.png">
-
-    <%# Includes all stylesheet files in app/assets/stylesheets %>
     <%= stylesheet_link_tag :app %>
   </head>
 
   <body>
-    <%= yield %>
+    <a class="skip-link" href="#main">Skip to content</a>
+    <header class="site-header">
+      <div class="shell header-inner">
+        <% if current_user %>
+          <%= link_to root_path, class: "brand" do %>
+            <span class="brand-mark" aria-hidden="true">R</span>
+            <span>Renewal Desk</span>
+          <% end %>
+          <div class="account">
+            <span class="account-email"><%= current_user.email_address %></span>
+            <%= button_to "Sign out", session_path, method: :delete, class: "button button--quiet" %>
+          </div>
+        <% else %>
+          <div class="brand">
+            <span class="brand-mark" aria-hidden="true">R</span>
+            <span>Renewal Desk</span>
+          </div>
+        <% end %>
+      </div>
+    </header>
+
+    <main id="main" class="shell main-content">
+      <% if notice %>
+        <p class="notice" role="status"><%= notice %></p>
+      <% end %>
+      <%= yield %>
+    </main>
   </body>
 </html>

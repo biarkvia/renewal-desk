@@ -1,0 +1,32 @@
+<section class="panel form-panel" aria-label="Contract details">
+  <%= render "problem" %>
+
+  <%= form_with scope: :contract, url: url, method: method, class: "form-stack" do |form| %>
+    <% if method == :patch %>
+      <%= form.hidden_field :lock_version, value: @form["lock_version"] %>
+    <% end %>
+    <div class="field">
+      <%= form.label :title, "Contract name" %>
+      <%= form.text_field :title, value: @form["title"], required: true, maxlength: 160 %>
+    </div>
+    <div class="field">
+      <%= form.label :counterparty %>
+      <%= form.text_field :counterparty, value: @form["counterparty"], required: true, maxlength: 160 %>
+    </div>
+    <div class="form-row">
+      <div class="field">
+        <%= form.label :ends_on, "End date" %>
+        <%= form.date_field :ends_on, value: @form["ends_on"], required: true, min: "0001-01-01", max: "9999-12-31" %>
+      </div>
+      <div class="field">
+        <%= form.label :notice_days, "Notice period in days" %>
+        <%= form.number_field :notice_days, value: @form["notice_days"], required: true, min: 0, max: 365, step: 1, aria: { describedby: "notice-hint" } %>
+      </div>
+    </div>
+    <p id="notice-hint" class="field-hint">Enter the number of calendar days required before the contract ends.</p>
+    <div class="form-actions">
+      <%= form.submit submit, class: "button button--primary" %>
+      <%= link_to "Cancel", cancel, class: "button button--quiet" %>
+    </div>
+  <% end %>
+</section>

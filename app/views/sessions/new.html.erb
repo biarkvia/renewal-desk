@@ -1,0 +1,22 @@
+<% content_for :title, "Sign in · Renewal Desk" %>
+
+<section class="panel sign-in-panel" aria-labelledby="sign-in-heading">
+  <h1 id="sign-in-heading">Sign in</h1>
+  <p class="muted">Access your contracts and renewal decisions.</p>
+
+  <% if @sign_in_error %>
+    <p class="error-message" role="alert"><%= @sign_in_error %></p>
+  <% end %>
+
+  <%= form_with url: session_path, class: "form-stack" do |form| %>
+    <div class="field">
+      <%= form.label :email_address, "Email address" %>
+      <%= form.email_field :email_address, value: @email_address, required: true, autocomplete: "username" %>
+    </div>
+    <div class="field">
+      <%= form.label :password %>
+      <%= form.password_field :password, required: true, autocomplete: "current-password" %>
+    </div>
+    <%= form.submit "Sign in", class: "button button--primary" %>
+  <% end %>
+</section>

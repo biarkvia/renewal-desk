@@ -1,0 +1,88 @@
+<% content_for :title, "#{@contract.title} · Renewal Desk" %>
+
+<%= link_to "Back to contracts", contracts_path, class: "back-link" %>
+<div class="page-heading">
+  <div>
+    <h1><%= @contract.title %></h1>
+    <p class="muted"><%= @contract.counterparty %></p>
+  </div>
+  <% unless @contract.decision %>
+    <%= link_to "Edit contract", edit_contract_path(@contract), class: "button button--outline" %>
+  <% end %>
+</div>
+
+<%= render "problem" %>
+
+<div class="detail-grid">
+  <section class="panel detail-panel" aria-labelledby="schedule-heading">
+    <h2 id="schedule-heading">Schedule</h2>
+    <dl class="details">
+      <div>
+        <dt>Notice deadline</dt>
+        <dd class="deadline"><%= contract_date(@contract.notice_due_on) %></dd>
+      </div>
+      <div>
+        <dt>End date</dt>
+        <dd><%= contract_date(@contract.ends_on) %></dd>
+      </div>
+      <div>
+        <dt>Notice period</dt>
+        <dd><%= pluralize(@contract.notice_days, "calendar day") %></dd>
+      </div>
+      <div>
+        <dt>Status</dt>
+        <dd><%= contract_badge(@contract) %></dd>
+      </div>
+    </dl>
+  </section>
+
+  <section class="panel detail-panel" aria-labelledby="decision-heading">
+    <h2 id="decision-heading">Renewal decision</h2>
+    <% if @contract.decision %>
+      <p class="decision-value"><%= decision_label(@contract.decision) %></p>
+      <p class="muted">Recorded <%= event_time(@contract.decided_at) %></p>
+    <% else %>
+      <p class="muted">Recording a decision closes this contract.</p>
+      <%= form_with scope: :contract, url: decision_contract_path(@contract), class: "form-stack" do |form| %>
+        <%= form.hidden_field :lock_version, value: @contract.lock_version %>
+        <fieldset class="decision-options">
+          <legend class="visually-hidden">Choose a decision</legend>
+          <% %w[renew do_not_renew].each do |decision| %>
+            <label class="choice">
+              <%= form.radio_button :decision, decision, required: true %>
+              <span><%= decision_label(decision) %></span>
+            </label>
+          <% end %>
+        </fieldset>
+        <%= form.submit "Record decision", class: "button button--primary" %>
+      <% end %>
+    <% end %>
+  </section>
+</div>
+
+<section class="panel history-panel" aria-labelledby="history-heading">
+  <h2 id="history-heading">History</h2>
+  <ol class="history">
+    <% @contract.events.includes(:actor).each do |event| %>
+      <li>
+        <div class="event-header">
+          <h3><%= event_label(event) %></h3>
+          <%= event_time(event.created_at) %>
+        </div>
+        <p class="muted event-actor"><%= event.actor.email_address %></p>
+        <% if event.event_type == "contract_updated" %>
+          <dl class="changes">
+            <% visible_changes(event).each do |label, previous, current| %>
+              <div>
+                <dt><%= label %></dt>
+                <dd><%= previous %> → <%= current %></dd>
+              </div>
+            <% end %>
+          </dl>
+        <% elsif event.event_type == "decision_recorded" %>
+          <p class="event-decision"><%= decision_label(event.payload.fetch("decision")) %></p>
+        <% end %>
+      </li>
+    <% end %>
+  </ol>
+</section>

@@ -1,0 +1,6 @@
+<% content_for :title, "Edit contract · Renewal Desk" %>
+
+<%= link_to "Back to contract", contract_path(@contract), class: "back-link" %>
+<div class="page-heading"><h1>Edit contract</h1></div>
+
+<%= render "form", url: contract_path(@contract), method: :patch, submit: "Save changes", cancel: contract_path(@contract) %>
