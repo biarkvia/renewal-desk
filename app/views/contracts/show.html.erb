@@ -13,6 +13,17 @@
 
 <%= render "problem" %>
 
+<% if @reminder %>
+  <section class="notice renewal-reminder" aria-labelledby="reminder-heading">
+    <h2 id="reminder-heading">Renewal reminder</h2>
+    <% if @contract.notice_due_on < Date.current %>
+      <p>The notice deadline passed on <%= contract_date(@contract.notice_due_on) %>.</p>
+    <% else %>
+      <p>Review this contract by <%= contract_date(@contract.notice_due_on) %>.</p>
+    <% end %>
+  </section>
+<% end %>
+
 <div class="detail-grid">
   <section class="panel detail-panel" aria-labelledby="schedule-heading">
     <h2 id="schedule-heading">Schedule</h2>

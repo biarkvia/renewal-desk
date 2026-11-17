@@ -1,5 +1,5 @@
 <section class="panel form-panel" aria-label="Contract details">
-  <%= render "problem" %>
+  <%= render "contracts/problem" %>
 
   <%= form_with scope: :contract, url: url, method: method, class: "form-stack" do |form| %>
     <% if method == :patch %>

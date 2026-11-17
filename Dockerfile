@@ -18,17 +18,30 @@ RUN apt-get update && \
 COPY Gemfile Gemfile.lock .ruby-version ./
 RUN bundle install
 
-FROM base
+FROM build AS source
+
+COPY . .
+RUN mkdir -p log tmp/pids && chmod +x bin/*
+
+FROM base AS runtime
 
 RUN groupadd --gid 1000 rails && \
     useradd --uid 1000 --gid rails --create-home rails
 
 COPY --from=build /usr/local/bundle /usr/local/bundle
-COPY --chown=rails:rails . .
-RUN mkdir -p log tmp/pids && \
-    chown -R rails:rails log tmp && \
-    chmod +x bin/*
+
+FROM runtime AS app
+
+COPY --from=source --chown=rails:rails /rails /rails
 
 USER rails
 
 EXPOSE 3000
+
+FROM runtime AS browser
+
+RUN apt-get update && \
+    apt-get install -y --no-install-recommends chromium chromium-driver fonts-liberation && \
+    rm -rf /var/lib/apt/lists/*
+COPY --from=source --chown=rails:rails /rails /rails
+USER rails

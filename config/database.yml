@@ -8,8 +8,13 @@ default: &default
   password: <%= ENV["DB_PASSWORD"].to_json %>
 
 development:
-  <<: *default
-  database: renewal_desk_development
+  primary:
+    <<: *default
+    database: renewal_desk_development
+  queue:
+    <<: *default
+    database: renewal_desk_development_queue
+    migrations_paths: db/queue_migrate
 
 test:
   <<: *default
@@ -17,5 +22,10 @@ test:
   url: postgresql:///renewal_desk_test
 
 production:
-  <<: *default
-  database: renewal_desk_production
+  primary:
+    <<: *default
+    database: renewal_desk_production
+  queue:
+    <<: *default
+    database: renewal_desk_production_queue
+    migrations_paths: db/queue_migrate

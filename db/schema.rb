@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_11_16_210200) do
+ActiveRecord::Schema[8.1].define(version: 2026_11_16_210300) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
@@ -48,6 +48,14 @@ ActiveRecord::Schema[8.1].define(version: 2026_11_16_210200) do
     t.check_constraint "schedule_revision > 0", name: "contracts_schedule_revision"
   end
 
+  create_table "reminders", force: :cascade do |t|
+    t.bigint "contract_id", null: false
+    t.integer "schedule_revision", null: false
+    t.datetime "created_at", null: false
+    t.index ["contract_id", "schedule_revision"], name: "index_reminders_on_contract_id_and_schedule_revision", unique: true
+    t.check_constraint "schedule_revision > 0", name: "reminders_schedule_revision"
+  end
+
   create_table "sessions", force: :cascade do |t|
     t.bigint "user_id", null: false
     t.datetime "created_at", null: false
@@ -66,5 +74,6 @@ ActiveRecord::Schema[8.1].define(version: 2026_11_16_210200) do
   add_foreign_key "contract_events", "contracts"
   add_foreign_key "contract_events", "users", column: "actor_id"
   add_foreign_key "contracts", "users", column: "owner_id"
+  add_foreign_key "reminders", "contracts"
   add_foreign_key "sessions", "users"
 end

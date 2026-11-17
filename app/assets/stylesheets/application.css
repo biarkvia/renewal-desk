@@ -178,6 +178,8 @@ h3 { font-size: 1rem; }
 .notice, .error-message { padding: .8rem 1rem; margin-bottom: 1.15rem; border: 1px solid; border-radius: .55rem; }
 .notice { color: var(--green-dark); background: var(--green-tint); border-color: #c6e0cf; }
 .error-message { color: #762b21; background: #fbefeb; border-color: #ecd0c8; }
+.renewal-reminder h2 { font-size: 1rem; }
+.renewal-reminder p { margin-top: .2rem; }
 
 .sign-in-panel { max-width: 27rem; margin: min(5vw, 3rem) auto 0; padding: clamp(1.35rem, 5vw, 2rem); }
 .sign-in-panel h1 { font-size: 2.15rem; }
@@ -192,7 +194,7 @@ h3 { font-size: 1rem; }
 
 .field { display: grid; gap: .4rem; min-width: 0; }
 .field label { font-size: .89rem; font-weight: 700; }
-.field input {
+.field input, .field textarea {
   min-width: 0;
   width: 100%;
   min-height: 2.75rem;
@@ -203,6 +205,15 @@ h3 { font-size: 1rem; }
   padding: .5rem .65rem;
   font: inherit;
 }
+.field textarea { resize: vertical; }
+
+.extraction-panel + .extraction-panel { margin-top: 1.15rem; }
+.extraction-panel > .form-stack { margin-top: 1rem; }
+.suggestions { margin: 1rem 0; }
+.suggestions > div { padding-block: .7rem; border-top: 1px solid var(--line); }
+.suggestions dt { color: var(--muted); font-size: .86rem; }
+.suggestions dd { margin: .24rem 0 0; min-width: 0; }
+.suggestions blockquote { margin: .48rem 0 0; padding-left: .72rem; border-left: 2px solid var(--line); color: var(--muted); overflow-wrap: anywhere; }
 
 .form-row { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 1.15rem; }
 .field-hint { margin-top: -.6rem; color: var(--muted); font-size: .84rem; }

@@ -1,0 +1,58 @@
+<% content_for :title, "Extract contract terms · Renewal Desk" %>
+
+<%= link_to "Back to manual entry", new_contract_path, class: "back-link" %>
+<div class="page-heading">
+  <div>
+    <h1>Extract contract terms</h1>
+    <p class="muted">Find the end date and notice period in a contract excerpt.</p>
+  </div>
+</div>
+
+<% if @extraction_error %>
+  <p class="error-message" role="alert"><%= @extraction_error %></p>
+<% end %>
+
+<% if @suggestions&.any? %>
+  <section class="panel form-panel extraction-panel" aria-labelledby="suggestions-heading">
+    <h2 id="suggestions-heading">Review suggestions</h2>
+    <p class="muted">Check each value against its source before applying it.</p>
+    <dl class="suggestions">
+      <% { "ends_on" => "End date", "notice_days" => "Notice period" }.each do |field, label| %>
+        <div>
+          <dt><%= label %></dt>
+          <% if (suggestion = @suggestions[field]) %>
+            <dd>
+              <strong><%= field == "ends_on" ? contract_date(suggestion.fetch(:value)) : pluralize(suggestion.fetch(:value), "calendar day") %></strong>
+              <blockquote><%= suggestion.fetch(:quote) %></blockquote>
+            </dd>
+          <% else %>
+            <dd class="muted">No explicit term found.</dd>
+          <% end %>
+        </div>
+      <% end %>
+    </dl>
+    <%= button_to "Apply suggestions", apply_contract_suggestion_path, params: { proposal: @proposal }, class: "button button--primary" %>
+  </section>
+<% elsif @suggestions %>
+  <p class="notice" role="status">No explicit end date or notice period was found in this excerpt.</p>
+<% end %>
+
+<% if @provider %>
+  <section class="panel form-panel extraction-panel" aria-labelledby="excerpt-heading">
+    <h2 id="excerpt-heading">Contract excerpt</h2>
+    <% if demo_provider? %>
+      <p class="muted">Sample mode uses the fictional excerpt below.</p>
+    <% else %>
+      <p class="muted">Your excerpt is sent to OpenAI for extraction.</p>
+    <% end %>
+    <%= form_with url: contract_suggestion_path, class: "form-stack" do |form| %>
+      <div class="field">
+        <%= form.label :contract_excerpt, "Paste the relevant text" %>
+        <%= form.text_area :contract_excerpt, value: @excerpt, rows: 6, required: true, maxlength: ContractExtraction::Extractor::MAX_EXCERPT_LENGTH %>
+      </div>
+      <%= form.submit "Find terms", class: "button button--primary" %>
+    <% end %>
+  </section>
+<% elsif !@extraction_error %>
+  <p class="notice" role="status">Text extraction is unavailable. You can enter the details manually.</p>
+<% end %>

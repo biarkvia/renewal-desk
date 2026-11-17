@@ -1,0 +1,11 @@
+default: &default
+  issue_renewal_reminders:
+    class: IssueRenewalRemindersJob
+    queue: default
+    schedule: "0 8 * * * Europe/Prague"
+
+development:
+  <<: *default
+
+production:
+  <<: *default

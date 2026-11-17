@@ -9,6 +9,7 @@ class ContractsController < ApplicationController
   end
 
   def show
+    @reminder = @contract.current_reminder
   end
 
   def new
@@ -62,6 +63,7 @@ class ContractsController < ApplicationController
       :error
     end
 
+    @reminder = @contract.current_reminder if template == :show
     render template, status: @problem.status
   end
 end

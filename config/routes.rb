@@ -3,6 +3,9 @@ Rails.application.routes.draw do
 
   root "contracts#index"
   resource :session, only: [ :new, :create, :destroy ]
+  resource :contract_suggestion, only: [ :new, :create ] do
+    post :apply, on: :collection
+  end
   resources :contracts, only: [ :index, :show, :new, :create, :edit, :update ] do
     post :decision, on: :member
   end

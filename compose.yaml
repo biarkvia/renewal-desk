@@ -1,14 +1,22 @@
 name: renewal-desk
 
+x-database: &database
+  DB_HOST: db
+  DB_USER: renewal_desk
+  DB_PASSWORD: renewal_desk_local
+
 services:
   app:
-    build: .
+    image: ${COMPOSE_PROJECT_NAME:-renewal-desk}-app
+    build:
+      context: .
+      target: app
     init: true
     command: ["sh", "-c", "bin/rails db:prepare && exec bin/rails server --binding 0.0.0.0"]
     environment:
-      DB_HOST: db
-      DB_USER: renewal_desk
-      DB_PASSWORD: renewal_desk_local
+      <<: *database
+      OPENAI_API_KEY: ${OPENAI_API_KEY:-}
+      CONTRACT_EXTRACTION_DEMO: ${CONTRACT_EXTRACTION_DEMO:-}
     ports:
       - "127.0.0.1:${APP_PORT:-3000}:3000"
     depends_on:
@@ -20,6 +28,31 @@ services:
       timeout: 3s
       start_period: 15s
       retries: 12
+
+  jobs:
+    image: ${COMPOSE_PROJECT_NAME:-renewal-desk}-app
+    pull_policy: never
+    init: true
+    restart: unless-stopped
+    command: ["bin/jobs", "start"]
+    environment: *database
+    depends_on:
+      app:
+        condition: service_healthy
+
+  browser:
+    profiles: [test]
+    build:
+      context: .
+      target: browser
+    init: true
+    command: ["sh", "-c", "bin/rails db:prepare && exec bin/rails test:system"]
+    environment:
+      <<: *database
+      RAILS_ENV: test
+    depends_on:
+      db:
+        condition: service_healthy
 
   db:
     image: postgres:17.12-bookworm@sha256:40865bc877a289da75963d97d72b59633f639fc5af7a4e856bfa3714cae5b536

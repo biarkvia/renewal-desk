@@ -1,6 +1,9 @@
 <% content_for :title, "New contract · Renewal Desk" %>
 
 <%= link_to "Back to contracts", contracts_path, class: "back-link" %>
-<div class="page-heading"><h1>New contract</h1></div>
+<div class="page-heading">
+  <h1>New contract</h1>
+  <%= link_to "Use a contract excerpt", new_contract_suggestion_path, class: "button button--outline" %>
+</div>
 
-<%= render "form", url: contracts_path, method: :post, submit: "Add contract", cancel: contracts_path %>
+<%= render "contracts/form", url: contracts_path, method: :post, submit: "Add contract", cancel: contracts_path %>

@@ -26,6 +26,7 @@ Rails.application.configure do
   config.action_dispatch.show_exceptions = :rescuable
 
   config.action_controller.allow_forgery_protection = true
+  config.active_job.queue_adapter = :test
 
   # Print deprecation notices to the stderr.
   config.active_support.deprecation = :stderr
